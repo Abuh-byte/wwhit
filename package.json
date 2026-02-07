@@ -1,0 +1,7 @@
+{
+    "name": "wwhit",
+    "version": "1.0.0",
+    "script": {
+        "start": "npx serve ."
+    }
+}

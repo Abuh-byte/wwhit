@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>wwhit</title>
+
+<link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2111/2111370.png">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  height: 100vh;
+  overflow: hidden;
+  color: white;
+}
+
+/* background video */
+#bg-video {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(6px);
+  z-index: -1;
+}
+
+/* card */
+.card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 330px;
+  padding: 28px;
+  border-radius: 22px;
+  background: rgba(255,255,255,0.47);
+  backdrop-filter: blur(22px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  text-align: center;
+}
+
+/* avatar */
+.avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  margin: 0 auto 12px;
+  border: 3px solid rgba(255,255,255,0.6);
+  background-size: cover;
+  background-position: center;
+}
+
+/* text */
+h1 {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+p {
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 16px 0;
+}
+
+/* status */
+.status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  animation: pulse 1.6s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 currentColor; }
+  70% { box-shadow: 0 0 0 10px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+.online { background:#23a55a; color:#23a55a; }
+.idle { background:#f0b232; color:#f0b232; }
+.dnd { background:#f23f43; color:#f23f43; }
+.offline { background:#80848e; color:#80848e; animation:none; }
+
+/* discord button */
+.discord-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #5865F2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  box-shadow: 0 0 22px rgba(88,101,242,0.9);
+  transition: 0.2s;
+}
+
+.discord-btn:hover {
+  transform: scale(1.12);
+  box-shadow: 0 0 35px rgba(88,101,242,1);
+}
+
+.discord-btn img {
+  width: 34px;
+}
+</style>
+</head>
+
+<body>
+
+<video autoplay muted loop playsinline id="bg-video">
+  <source src="{{ url_for('static', filename='bg.mp4') }}" type="video/mp4">
+</video>
+
+<div class="overlay"></div>
+
+<div class="card">
+  <div id="avatar" class="avatar"></div>
+  <h1 id="username">wwhit</h1>
+
+  <div class="status">
+    <span id="dot" class="status-dot offline"></span>
+    <span id="status-text">offline</span>
+  </div>
+
+  <p>
+    Actually web developer and training discord.py.<br>
+    Discord: <b>wwhitdaazuth</b>
+  </p>
+
+  <a class="discord-btn" target="_blank"
+     href="https://discord.com/users/1269708805546180729">
+    <img src="https://cdn-icons-png.flaticon.com/512/2111/2111370.png">
+  </a>
+</div>
+
+<script>
+const USER_ID = "1269708805546180729";
+const fallbackAvatar = "https://cdn.discordapp.com/embed/avatars/0.png";
+
+fetch(`https://api.lanyard.rest/v1/users/${USER_ID}`)
+  .then(r => r.json())
+  .then(({ data, success }) => {
+    if (!success || !data) return;
+
+    const user = data.discord_user;
+    const avatarHash = user.avatar;
+    const avatarURL = avatarHash
+      ? `https://cdn.discordapp.com/avatars/${USER_ID}/${avatarHash}.png?size=256`
+      : fallbackAvatar;
+
+    document.getElementById("avatar").style.backgroundImage =
+      `url(${avatarURL})`;
+
+    document.getElementById("username").innerText = user.username;
+
+    const status = data.discord_status || "offline";
+    const dot = document.getElementById("dot");
+    const text = document.getElementById("status-text");
+
+    dot.className = `status-dot ${status}`;
+    text.innerText = status;
+  })
+  .catch(() => {});
+</script>
+
+</body>
+</html>
